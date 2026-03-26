@@ -3,6 +3,13 @@ import secrets
 import string
 
 def main(page: ft.Page):
+    # ページの設定
+    page.title = "パスワード生成・管理アプリ"
+    page.theme_mode = "light"
+    page.window.width = 800
+    page.window.height = 400
+
+    # パスワード表示フィールド
     password_field = ft.TextField(label="Password", text_size=20, read_only=True, expand=True)
     
     # パスワード生成ロジック
