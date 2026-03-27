@@ -1,7 +1,7 @@
 [project]
 name = "password-app"
 version = "0.1.0"
-description = ""
+description = "パスワード生成・管理アプリ"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
@@ -16,6 +16,7 @@ dev = [
     "flet-cli>=0.82.2",
     "flet-desktop>=0.82.2",
     "flet-web>=0.82.2",
+    "pytest>=9.0.0",
 ]
 
 [tool.flet]
@@ -26,3 +27,6 @@ copyright = "Copyright (C) 2023-2026 by Flet"
 
 [tool.flet.app]
 path = "src"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
