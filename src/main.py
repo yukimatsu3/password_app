@@ -73,43 +73,62 @@ def main(page: ft.Page):
         symbols_checkbox.value
     )
 
-    page.add(
-        ft.Column(
+    # パスワード生成タブ
+    generate_view = ft.Container(
+        content=ft.Column(
             controls=[
-                ft.Row(controls=[
-                    lenght_label,
-                    slider
-                    ],
-                alignment=ft.MainAxisAlignment.CENTER
-                )
-            ],
+                ft.Row([lenght_label, slider], alignment=ft.MainAxisAlignment.CENTER),
+                ft.Row([uppercase_checkbox, lowercase_checkbox, digit_checkbox, symbols_checkbox],
+                       alignment=ft.MainAxisAlignment.CENTER),
+                ft.Row([password_field], alignment=ft.MainAxisAlignment.CENTER),
+                ft.Row([generate_button, copy_button, clear_button], alignment=ft.MainAxisAlignment.CENTER),
+            ]
         ),
-        ft.Column(
+        expand=True
+    )
+
+    # パスワード管理タブこれから作成
+    manage_view = ft.Container(
+        content=ft.Column(
             controls=[
-                ft.Row(controls=[
-                    uppercase_checkbox,
-                    lowercase_checkbox,
-                    digit_checkbox,
-                    symbols_checkbox,
-                ],
-                alignment=ft.MainAxisAlignment.CENTER
-                )
-            ],
+                ft.Text("パスワード管理画面", size=20)
+            ]
         ),
-        ft.Row(
+        expand=True
+    )
+
+    # タブバー
+    tab_bar = ft.TabBar(
+        tabs=[
+            ft.Tab(label="生成"),
+            ft.Tab(label="管理"),
+        ]
+    )
+
+    # タブの中身
+    tab_view = ft.TabBarView(
+        expand=True,
+        controls=[
+            generate_view,
+            manage_view,
+        ]
+    )
+
+    # タブ全体
+    tabs = ft.Tabs(
+        selected_index=0,
+        length=2,
+        expand=True,
+        content=ft.Column(
+            expand=True,
             controls=[
-                password_field,
-            ],
-            alignment=ft.MainAxisAlignment.CENTER
-        ),
-        ft.Row(
-            controls=[
-                generate_button,
-                copy_button,
-                clear_button
-            ],
-            alignment=ft.MainAxisAlignment.CENTER
+                tab_bar,
+                tab_view
+            ]
         )
     )
+
+
+    page.add(tabs)
 
 ft.run(main)
