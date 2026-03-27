@@ -10,7 +10,7 @@ def main(page: ft.Page):
 
     # 関数
     # 生成ボタンを押したときの処理
-    def on_gererate_click(e):
+    def on_generate_click(e):
         try:
             password_field.value = generate_password(
                 int(slider.value),
@@ -60,7 +60,7 @@ def main(page: ft.Page):
     slider = ft.Slider(min=8, max=20, divisions=12, value=12, on_change=password_number_changed)
 
     # ボタン
-    generate_button = ft.Button(content="生成", width=120, on_click=on_gererate_click)
+    generate_button = ft.Button(content="生成", width=120, on_click=on_generate_click)
     copy_button = ft.Button(content="コピー", width=120, on_click=copy_button_click)
     clear_button = ft.Button(content="クリア", width=120, on_click=on_clear_click)
 
