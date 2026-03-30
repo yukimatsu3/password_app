@@ -77,21 +77,3 @@ def delete_password(uuid_value):
     data = [item for item in data if item["uuid"] != uuid_value]
 
     save_passwords(data)
-
-if __name__ == "__main__":
-    create_json()
-
-    # パスワード追加テスト
-    entry = add_password("Google", "abc@def.com", "pass1234")
-    print("追加:", entry)
-
-    # データの読み込み
-    print("読込:", load_passwords())
-
-    # 更新テスト
-    update_password(entry["uuid"], "Facebook", "new@def.com", "newpass1234")
-    print("更新", load_passwords())
-
-    # 削除テスト
-    delete_password(entry["uuid"])
-    print("削除:", load_passwords())
