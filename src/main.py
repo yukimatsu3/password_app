@@ -6,7 +6,7 @@ def main(page: ft.Page):
     page.title = "パスワード生成・管理アプリ"
     page.theme_mode = "light"
     page.window.width = 450
-    page.window.height = 700
+    page.window.height = 600
     page.bgcolor = "#ffffff"
 
     # 関数
@@ -63,7 +63,7 @@ def main(page: ft.Page):
     # ボタン
     generate_button = ft.Button(
         content=ft.Text("生成", color="white"),
-        width=80,
+        width=150,
         bgcolor="#1e95d4",
         on_click=on_generate_click
     )
@@ -88,21 +88,16 @@ def main(page: ft.Page):
                         ft.Container(
                             content=uppercase_checkbox,
                             alignment=ft.Alignment.CENTER_LEFT,
-                            width=300,
+                            width=150,
                             height=50,
                             border_radius=5,
                             bgcolor="#FFFAFA",
                             shadow=ft.BoxShadow(blur_radius=5, color="#D3D3D3", offset=ft.Offset(0, 2))
                         ),
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER
-                ),
-                ft.Row(
-                    controls=[
                         ft.Container(
                             content=lowercase_checkbox,
                             alignment=ft.Alignment.CENTER_LEFT,
-                            width=300,
+                            width=150,
                             height=50,
                             border_radius=5,
                             bgcolor="#FFFAFA",
@@ -116,7 +111,16 @@ def main(page: ft.Page):
                         ft.Container(
                             content=digit_checkbox,
                             alignment=ft.Alignment.CENTER_LEFT,
-                            width=300,
+                            width=150,
+                            height=50,
+                            border_radius=5,
+                            bgcolor="#FFFAFA",
+                            shadow=ft.BoxShadow(blur_radius=5, color="#D3D3D3", offset=ft.Offset(0, 2))
+                        ),
+                        ft.Container(
+                            content=symbols_checkbox,
+                            alignment=ft.Alignment.CENTER_LEFT,
+                            width=150,
                             height=50,
                             border_radius=5,
                             bgcolor="#FFFAFA",
@@ -125,34 +129,20 @@ def main(page: ft.Page):
                     ],
                     alignment=ft.MainAxisAlignment.CENTER
                 ),
-                ft.Row(
-                    controls=[
-                        ft.Container(
-                            content=symbols_checkbox,
-                            alignment=ft.Alignment.CENTER_LEFT,
-                            width=300,
-                            height=50,
-                            border_radius=5,
-                            bgcolor="#FFFAFA",
-                            shadow=ft.BoxShadow(blur_radius=5, color="#D3D3D3", offset=ft.Offset(0, 2))
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                ),
                 ft.Row([lenght_label, slider], alignment=ft.MainAxisAlignment.CENTER),
                 ft.Container(
                     content=
-                    ft.Row([password_field], alignment=ft.MainAxisAlignment.CENTER)),
+                    ft.Row([generate_button], alignment=ft.MainAxisAlignment.CENTER, margin=ft.Margin.only(bottom=60))),
                 ft.Container(
                     content=
-                    ft.Row([generate_button], alignment=ft.MainAxisAlignment.CENTER)),
+                    ft.Row([password_field], alignment=ft.MainAxisAlignment.CENTER)),
                 ft.Container(
                     content=
                     ft.Row([copy_button, clear_button], alignment=ft.MainAxisAlignment.CENTER, margin=ft.Margin.only(top=10))
                 ),
             ],
             spacing=20,
-            margin=ft.Margin.only(top=30),
+            alignment=ft.MainAxisAlignment.CENTER,
         ),
         expand=True
     )
