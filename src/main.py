@@ -43,7 +43,7 @@ def main(page: ft.Page):
 
     # パスワード文字数スライダー
     def password_number_changed(e):
-        lenght_label.value = f"長さ: {slider.value}"
+        lenght_label.value = f"長さ: {int(slider.value)}"
         page.update()
 
     # UIパーツ
