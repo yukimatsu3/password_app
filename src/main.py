@@ -5,8 +5,9 @@ def main(page: ft.Page):
     # ページの設定
     page.title = "パスワード生成・管理アプリ"
     page.theme_mode = "light"
-    page.window.width = 800
-    page.window.height = 400
+    page.window.width = 450
+    page.window.height = 700
+    page.bgcolor = "#ffffff"
 
     # 関数
     # 生成ボタンを押したときの処理
@@ -47,20 +48,25 @@ def main(page: ft.Page):
 
     # UIパーツ
     # パスワード表示フィールド
-    password_field = ft.TextField(label="Password", text_size=20, read_only=True, expand=True)
+    password_field = ft.TextField(label="Password", text_size=20, width=300, read_only=True)
 
     # 文字制御チェックボックス
-    uppercase_checkbox = ft.Checkbox(label="大文字を含む", value=True)
-    lowercase_checkbox = ft.Checkbox(label="小文字を含む", value=True)
-    digit_checkbox = ft.Checkbox(label="数字を含む", value=True)
-    symbols_checkbox = ft.Checkbox(label="記号を含む", value=True)
+    uppercase_checkbox = ft.Checkbox(label="大文字", label_style=ft.TextStyle(size=16), value=True, active_color="#1e95d4")
+    lowercase_checkbox = ft.Checkbox(label="小文字", label_style=ft.TextStyle(size=16), value=True, active_color="#1e95d4")
+    digit_checkbox = ft.Checkbox(label="数字", value=True, label_style=ft.TextStyle(size=16), active_color="#1e95d4")
+    symbols_checkbox = ft.Checkbox(label="記号", value=True, label_style=ft.TextStyle(size=16), active_color="#1e95d4")
 
     # 文字数スライダー
-    lenght_label = ft.Text(f"長さ: 12")
-    slider = ft.Slider(min=8, max=20, divisions=12, value=12, on_change=password_number_changed)
+    lenght_label = ft.Text(f"長さ: 12", size=16)
+    slider = ft.Slider(min=8, max=20, divisions=12, value=12, active_color="#1e95d4", on_change=password_number_changed)
 
     # ボタン
-    generate_button = ft.Button(content="生成", width=120, on_click=on_generate_click)
+    generate_button = ft.Button(
+        content=ft.Text("生成", color="white"),
+        width=80,
+        bgcolor="#1e95d4",
+        on_click=on_generate_click
+    )
     copy_button = ft.Button(content="コピー", width=120, on_click=copy_button_click)
     clear_button = ft.Button(content="クリア", width=120, on_click=on_clear_click)
 
@@ -77,12 +83,76 @@ def main(page: ft.Page):
     generate_view = ft.Container(
         content=ft.Column(
             controls=[
+                ft.Row(
+                    controls=[
+                        ft.Container(
+                            content=uppercase_checkbox,
+                            alignment=ft.Alignment.CENTER_LEFT,
+                            width=300,
+                            height=50,
+                            border_radius=5,
+                            bgcolor="#FFFAFA",
+                            shadow=ft.BoxShadow(blur_radius=5, color="#D3D3D3", offset=ft.Offset(0, 2))
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER
+                ),
+                ft.Row(
+                    controls=[
+                        ft.Container(
+                            content=lowercase_checkbox,
+                            alignment=ft.Alignment.CENTER_LEFT,
+                            width=300,
+                            height=50,
+                            border_radius=5,
+                            bgcolor="#FFFAFA",
+                            shadow=ft.BoxShadow(blur_radius=5, color="#D3D3D3", offset=ft.Offset(0, 2))
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER
+                ),
+                ft.Row(
+                    controls=[
+                        ft.Container(
+                            content=digit_checkbox,
+                            alignment=ft.Alignment.CENTER_LEFT,
+                            width=300,
+                            height=50,
+                            border_radius=5,
+                            bgcolor="#FFFAFA",
+                            shadow=ft.BoxShadow(blur_radius=5, color="#D3D3D3", offset=ft.Offset(0, 2))
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER
+                ),
+                ft.Row(
+                    controls=[
+                        ft.Container(
+                            content=symbols_checkbox,
+                            alignment=ft.Alignment.CENTER_LEFT,
+                            width=300,
+                            height=50,
+                            border_radius=5,
+                            bgcolor="#FFFAFA",
+                            shadow=ft.BoxShadow(blur_radius=5, color="#D3D3D3", offset=ft.Offset(0, 2))
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
                 ft.Row([lenght_label, slider], alignment=ft.MainAxisAlignment.CENTER),
-                ft.Row([uppercase_checkbox, lowercase_checkbox, digit_checkbox, symbols_checkbox],
-                       alignment=ft.MainAxisAlignment.CENTER),
-                ft.Row([password_field], alignment=ft.MainAxisAlignment.CENTER),
-                ft.Row([generate_button, copy_button, clear_button], alignment=ft.MainAxisAlignment.CENTER),
-            ]
+                ft.Container(
+                    content=
+                    ft.Row([password_field], alignment=ft.MainAxisAlignment.CENTER)),
+                ft.Container(
+                    content=
+                    ft.Row([generate_button], alignment=ft.MainAxisAlignment.CENTER)),
+                ft.Container(
+                    content=
+                    ft.Row([copy_button, clear_button], alignment=ft.MainAxisAlignment.CENTER, margin=ft.Margin.only(top=10))
+                ),
+            ],
+            spacing=20,
+            margin=ft.Margin.only(top=30),
         ),
         expand=True
     )
@@ -100,9 +170,10 @@ def main(page: ft.Page):
     # タブバー
     tab_bar = ft.TabBar(
         tabs=[
-            ft.Tab(label="生成"),
-            ft.Tab(label="管理"),
-        ]
+            ft.Tab(label="パスワード生成"),
+            ft.Tab(label="管理画面"),
+        ],
+        tab_alignment=ft.TabAlignment.CENTER,
     )
 
     # タブの中身
