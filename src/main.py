@@ -1,5 +1,5 @@
 import flet as ft
-from password import generate_password
+from services.password import generate_password
 
 def main(page: ft.Page):
     # ページの設定
