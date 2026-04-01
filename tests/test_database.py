@@ -1,6 +1,6 @@
 import pytest
-import database
-from database import (
+import services.database as database
+from services.database import (
     load_passwords,
     add_password,
     update_password,
@@ -46,3 +46,21 @@ def test_delete_password(init_json):
     data = load_passwords()
     assert isinstance(data, list)
     assert data == []
+
+def test_load_passwords_correted_json(monkeypatch, tmp_path):
+    """JSONが壊れているとき空リストを返し初期化すること"""
+    test_file = tmp_path / "password.json"
+    test_file.write_text("invaild json{{", encoding="utf-8")
+
+    monkeypatch.setattr(database, "JSON_PATH", str(test_file))
+
+    data = load_passwords()
+    assert data == []
+
+    # バックアップが作られていること
+    backup = tmp_path / "password.json.bak"
+    assert backup.exists()
+
+    # 初期化後は正常に読み込めること
+    data_after = load_passwords()
+    assert data_after == []

@@ -1,6 +1,7 @@
 import os
 import json
 import uuid
+import tempfile
 
 # このファイルのディレクトリパスを取得
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,16 +27,25 @@ def load_passwords():
         with open(JSON_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
             return data
+    # JSONファイルが壊れていたらバックアップファイルを作って空のJSONを作成
     except json.JSONDecodeError:
-        print("JSONファイルが壊れているため初期化します")
+        backup_path = JSON_PATH + ".bak"
+        os.replace(JSON_PATH, backup_path)
+        print(f"JSONファイルが壊れているため {backup_path} にバックアップし初期化します")
         save_passwords([])
         return []
 
 # JSONファイルへの書き込み
+# まず一時ファイル（xxx.tmp）に書き込み
+# 書き込みが終わってから本番ファイルへ差し替え
+# 書き込み途中のファイル破損を防ぐ
 def save_passwords(data):
     """dataをpasswords.jsonに書き込む"""
-    with open(JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    dir_path = os.path.dirname(JSON_PATH)
+    with tempfile.NamedTemporaryFile("w", dir=dir_path, delete=False, suffix="tmp", encoding="utf-8") as tmp:
+        json.dump(data, tmp, indent=4, ensure_ascii=False)
+        tmp_path = tmp.name
+    os.replace(tmp_path, JSON_PATH)
 
 # idの生成
 def generate_uuid():
