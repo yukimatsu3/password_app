@@ -24,8 +24,8 @@ def main(page: ft.Page):
     tab_view = ft.TabBarView(
         expand=True,
         controls=[
-            generate_view,
-            manage_view,
+            generate_view(page),
+            manage_view(page),
         ]
     )
 
@@ -38,7 +38,7 @@ def main(page: ft.Page):
             expand=True,
             controls=[
                 tab_bar,
-                tab_view
+                tab_view,
             ]
         )
     )

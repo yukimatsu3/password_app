@@ -42,7 +42,7 @@ def load_passwords():
 def save_passwords(data):
     """dataをpasswords.jsonに書き込む"""
     dir_path = os.path.dirname(JSON_PATH)
-    with tempfile.NamedTemporaryFile("w", dir=dir_path, delete=False, suffix="tmp", encoding="utf-8") as tmp:
+    with tempfile.NamedTemporaryFile("w", dir=dir_path, delete=False, suffix=".tmp", encoding="utf-8") as tmp:
         json.dump(data, tmp, indent=4, ensure_ascii=False)
         tmp_path = tmp.name
     os.replace(tmp_path, JSON_PATH)

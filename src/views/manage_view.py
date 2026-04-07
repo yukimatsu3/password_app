@@ -4,4 +4,132 @@ from services.database import load_passwords, add_password, update_password, del
 def manage_view(page: ft.Page) -> ft.Container:
     create_json()
 
-    return ft.Container()
+    password_list = ft.ListView(expand=True, spacing=8)
+    search_field = ft.TextField(
+        hint_text = "検索...",
+        prefix_icon=ft.Icons.SEARCH,
+        border_radius=10,
+        height=45,
+        content_padding=ft.Padding.symmetric(vertical=0, horizontal=12),
+    )
+
+    def get_filtered():
+        data = load_passwords()
+        q = (search_field.value or "").lower()
+        if q:
+            return [p for p in data if q in p["name"].lower() or q in p["id"].lower()]
+        return data
+
+    def refresh():
+        password_list.controls.clear()
+        for entry in get_filtered():
+            password_list.controls.append(build_row(entry))
+        page.update()
+
+    def open_from_dialog(entry=None):
+        name_field = ft.TextField(label="名前", value=entry["name"] if entry else "")
+        id_field = ft.TextField(label="ID", value=entry["id"] if entry else "")
+        pass_field = ft.TextField(
+            label="パスワード",
+            value=entry["pass"] if entry else "",
+            password=True,
+            can_reveal_password=True,
+        )
+
+        def on_save(e):
+            if not name_field.value.strip():
+                return
+            if entry:
+                update_password(entry["uuid"], name_field.value, id_field.value, pass_field.value)
+            else:
+                add_password(name_field.value, id_field.value, pass_field.value)
+            page.pop_dialog()
+            refresh()
+
+        page.show_dialog(ft.AlertDialog(
+            title=ft.Text("新規追加" if not entry else "編集"),
+            content=ft.Column(
+                controls=[name_field, id_field, pass_field],
+                tight=True,
+                spacing=12,
+                width=300,
+            ),
+            actions=[
+                ft.TextButton("キャンセル", on_click=lambda e: page.pop_dialog()),
+                ft.TextButton("保存", on_click=on_save),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        ))
+
+    def open_delete_dialog(entry):
+        def on_confirm(e):
+            delete_password(entry["uuid"])
+            page.pop_dialog()
+            refresh()
+
+        page.show_dialog(ft.AlertDialog(
+            title=ft.Text("削除の確認"),
+            content=ft.Text(f'「{entry["name"]}を削除しますか？」'),
+            actions=[
+                ft.TextButton("キャンセル", on_click=lambda e: page.pop_dialog()),
+                ft.TextButton("削除", on_click=on_confirm, style=ft.ButtonStyle(color=ft.Colors.RED)),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        ))
+
+    def build_row(entry):
+        async def on_copy(e):
+            cb = ft.Clipboard()
+            page.services.append(cb)
+            await cb.set(entry["pass"])
+            page.show_dialog(ft.SnackBar("パスワードをコピーしました"))
+
+        return ft.Container(
+            content=ft.Row(
+                controls=[
+                    ft.Column(
+                        controls=[
+                            ft.Text(entry["name"], size=15, weight=ft.FontWeight.W_600),
+                            ft.Text(entry["id"], size=12, color=ft.Colors.GREY_600),
+                        ],
+                        spacing=2,
+                        expand=True,
+                    ),
+                    ft.IconButton(icon=ft.Icons.COPY, icon_size=18, on_click=on_copy, tooltip="コピー"),
+                    ft.IconButton(icon=ft.Icons.EDIT, icon_size=18, on_click=lambda e: open_from_dialog(entry), tooltip="編集"),
+                    ft.IconButton(icon=ft.Icons.DELETE_OUTLINE, icon_size=18, icon_color=ft.Colors.RED_300, on_click=lambda e: open_delete_dialog(entry), tooltip="削除"),
+                ],
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
+            padding=ft.Padding.symmetric(horizontal=12, vertical=8),
+            border_radius=10,
+            bgcolor="#FFFAFA",
+            shadow=ft.BoxShadow(blur_radius=4, color="#D3D3D3", offset=ft.Offset(0, 2)),
+        )
+
+    search_field.on_change = lambda e: refresh()
+    refresh()
+
+    return ft.Container(
+        content=ft.Column(
+            controls=[
+                ft.Text("パスワード管理", size=22, weight=ft.FontWeight.BOLD),
+                search_field,
+                password_list,
+                ft.Row(
+                    controls=[
+                        ft.FloatingActionButton(
+                            icon=ft.Icons.ADD,
+                            bgcolor="1e95d4",
+                            on_click=lambda _: open_from_dialog(),
+                        )
+                    ],
+                    alignment=ft.MainAxisAlignment.END,
+                ),
+            ],
+            expand=True,
+            spacing=12,
+        ),
+        expand=True,
+        padding=16,
+    )

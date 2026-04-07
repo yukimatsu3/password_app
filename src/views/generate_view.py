@@ -18,12 +18,12 @@ def generate_view(page: ft.Page) -> ft.Container:
         except ValueError as ex:
             page.show_dialog(ft.SnackBar(ft.Text(str(ex))))
         page.update()
-    
+
     # コピーボタンを押したときの処理
     async def copy_button_click(e):
 
         if not password_field.value:
-            page.show_dialog(ft.SnackBar("パスワードがまだ生成されていません"))
+            page.show_dialog(ft.SnackBar("パスワードがまだ生成されていません！"))
         else:
             try:
                 cb = ft.Clipboard()
@@ -31,9 +31,9 @@ def generate_view(page: ft.Page) -> ft.Container:
                 await cb.set(password_field.value)
                 page.show_dialog(ft.SnackBar("パスワードがコピーされました！"))
             except:
-                page.show_dialog(ft.SnackBar("クリックボードへのコピーに失敗しました！"))
+                page.show_dialog(ft.SnackBar("クリップボードへのコピーに失敗しました"))
         page.update()
-    
+
     # 保存ボタンを押したときの処理
     def on_save_click(e):
         if not password_field.value:
@@ -51,7 +51,7 @@ def generate_view(page: ft.Page) -> ft.Container:
             page.show_dialog(ft.SnackBar("保存しました"))
 
         page.show_dialog(ft.AlertDialog(
-            title=ft.Text("パスワード保存"),
+            title=ft.Text("パスワードを保存"),
             content=ft.Column(
                 controls=[name_field, id_field],
                 tight=True,
@@ -75,9 +75,8 @@ def generate_view(page: ft.Page) -> ft.Container:
 
     # パスワード文字数スライダー
     def password_number_changed(e):
-        lenght_label.value = f"長さ: {int(slider.value)}"
+        length_label.value = f"長さ: {int(slider.value)}"
         page.update()
-
 
     # UIパーツ
     # パスワード表示フィールド
@@ -90,7 +89,7 @@ def generate_view(page: ft.Page) -> ft.Container:
     symbols_checkbox = ft.Checkbox(label="記号", value=True, label_style=ft.TextStyle(size=16), active_color="#1e95d4")
 
     # 文字数スライダー
-    lenght_label = ft.Text(f"長さ: 12", size=16)
+    length_label = ft.Text(f"長さ: 12", size=16)
     slider = ft.Slider(min=8, max=20, divisions=12, value=12, active_color="#1e95d4", on_change=password_number_changed)
 
     # ボタン
@@ -165,7 +164,7 @@ def generate_view(page: ft.Page) -> ft.Container:
                     ],
                     alignment=ft.MainAxisAlignment.CENTER
                 ),
-                ft.Row([lenght_label, slider], alignment=ft.MainAxisAlignment.CENTER),
+                ft.Row([length_label , slider], alignment=ft.MainAxisAlignment.CENTER),
                 ft.Container(
                     content=
                     ft.Row([generate_button], alignment=ft.MainAxisAlignment.CENTER, margin=ft.Margin.only(bottom=60))),
