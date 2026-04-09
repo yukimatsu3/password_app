@@ -15,13 +15,18 @@ def manage_view(page: ft.Page) -> ft.Container:
 
     def get_filtered():
         data = load_passwords()
+        # 検索文字列を小文字化
         q = (search_field.value or "").lower()
+        # qが含まれるnameまたはidのデータだけ返す
         if q:
             return [p for p in data if q in p["name"].lower() or q in p["id"].lower()]
         return data
 
     def refresh():
+        # パスワード一覧を空にする
+        # 検索結果が変わったときやCRUD処理したときに必要
         password_list.controls.clear()
+        # get_filtered()で検索条件にあったデータを取得しListViewへ追加
         for entry in get_filtered():
             password_list.controls.append(build_row(entry))
         page.update()
@@ -37,16 +42,20 @@ def manage_view(page: ft.Page) -> ft.Container:
         )
 
         def on_save(e):
+            # strip():文字列の前後から不要な文字（デフォルトでは空白文字）を削除
             if not name_field.value.strip():
                 return
+            # パスワードが存在すれば編集モードでアップデート
             if entry:
                 update_password(entry["uuid"], name_field.value, id_field.value, pass_field.value)
+            # パスワードが存在しなければ新規追加モードでアップデート
             else:
                 add_password(name_field.value, id_field.value, pass_field.value)
             page.pop_dialog()
             refresh()
 
         page.show_dialog(ft.AlertDialog(
+            # 追加モード or 編集モードに応じてテキストを変更
             title=ft.Text("新規追加" if not entry else "編集"),
             content=ft.Column(
                 controls=[name_field, id_field, pass_field],
@@ -65,11 +74,12 @@ def manage_view(page: ft.Page) -> ft.Container:
         def on_confirm(e):
             delete_password(entry["uuid"])
             page.pop_dialog()
+            page.update()
             refresh()
 
         page.show_dialog(ft.AlertDialog(
             title=ft.Text("削除の確認"),
-            content=ft.Text(f'「{entry["name"]}を削除しますか？」'),
+            content=ft.Text(f'{entry["name"]}を削除しますか？'),
             actions=[
                 ft.TextButton("キャンセル", on_click=lambda e: page.pop_dialog()),
                 ft.TextButton("削除", on_click=on_confirm, style=ft.ButtonStyle(color=ft.Colors.RED)),
