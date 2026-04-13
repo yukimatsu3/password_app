@@ -1,5 +1,6 @@
 import flet as ft
-from services.password import generate_password
+from state import AppState
+# from services.password import generate_password
 from views.generate_view import generate_view
 from views.manage_view import manage_view
 
@@ -11,6 +12,9 @@ def main(page: ft.Page):
     page.window.height = 600
     page.bgcolor = "#ffffff"
 
+    # アプリ全体の状態を用意（起動時にJSONから読み込み）
+    app_state = AppState.load_initial()
+
     # タブバー
     tab_bar = ft.TabBar(
         tabs=[
@@ -20,12 +24,16 @@ def main(page: ft.Page):
         tab_alignment=ft.TabAlignment.CENTER,
     )
 
+    # 管理画面ビューは自分を更新するための関数を外に出せるようにする
+    manage_container, manage_refresh = manage_view(page, app_state)
+
     # タブの中身
     tab_view = ft.TabBarView(
         expand=True,
         controls=[
-            generate_view(page),
-            manage_view(page),
+            # 生成画面にはstateと管理画面を更新するコールバックを渡す
+            generate_view(page, app_state, on_saved=manage_refresh),
+            manage_container,
         ]
     )
 

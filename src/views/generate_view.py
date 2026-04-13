@@ -1,8 +1,13 @@
 import flet as ft
+from state import AppState
 from services.password import generate_password
 from services.database import add_password, create_json
 
-def generate_view(page: ft.Page) -> ft.Container:
+def generate_view(
+        page: ft.Page,
+        state: AppState,
+        on_saved=None,
+        ) -> ft.Container:
     create_json()
 
     # 生成ボタンを押したときの処理
@@ -46,9 +51,16 @@ def generate_view(page: ft.Page) -> ft.Container:
         def on_confirm(e):
             if not name_field.value.strip():
                 return
-            add_password(name_field.value, id_field.value, password_field.value)
+            # JSONに保存
+            new_entry =add_password(name_field.value, id_field.value, password_field.value)
+            # stateにも反映
+            state.passwords.append(new_entry)
+
             page.pop_dialog()
             page.show_dialog(ft.SnackBar("保存しました"))
+
+            if on_saved is not None:
+                on_saved()
 
         page.show_dialog(ft.AlertDialog(
             title=ft.Text("パスワードを保存"),

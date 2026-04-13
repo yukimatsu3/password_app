@@ -1,7 +1,19 @@
 import flet as ft
-from services.database import load_passwords, add_password, update_password, delete_password, create_json
+from typing import Callable, Tuple
+from state import AppState
+from services.database import (
+    load_passwords,
+    add_password,
+    update_password,
+    delete_password,
+    create_json
+)
 
-def manage_view(page: ft.Page) -> ft.Container:
+def manage_view(page: ft.Page, state: AppState) -> Tuple[ft.Container, Callable[[], None]]:
+    """戻り値：
+        - 管理画面のコンテナ
+        - 一覧を再描写するための関数 refresh()
+    """
     create_json()
 
     password_list = ft.ListView(expand=True, spacing=8)
@@ -14,7 +26,8 @@ def manage_view(page: ft.Page) -> ft.Container:
     )
 
     def get_filtered():
-        data = load_passwords()
+        # ここではJSONを読まずstate.passwordを使用
+        data = state.passwords
         # 検索文字列を小文字化
         q = (search_field.value or "").lower()
         # qが含まれるnameまたはidのデータだけ返す
@@ -23,7 +36,7 @@ def manage_view(page: ft.Page) -> ft.Container:
         return data
 
     def refresh():
-        # パスワード一覧を空にする
+        # 一覧をstateから再構築
         # 検索結果が変わったときやCRUD処理したときに必要
         password_list.controls.clear()
         # get_filtered()で検索条件にあったデータを取得しListViewへ追加
@@ -50,7 +63,11 @@ def manage_view(page: ft.Page) -> ft.Container:
                 update_password(entry["uuid"], name_field.value, id_field.value, pass_field.value)
             # パスワードが存在しなければ新規追加モードでアップデート
             else:
-                add_password(name_field.value, id_field.value, pass_field.value)
+                new_entry = add_password(name_field.value, id_field.value, pass_field.value)
+                state.passwords.append(new_entry)
+            if entry:
+                state.reload_from_json()
+
             page.pop_dialog()
             refresh()
 
@@ -73,8 +90,8 @@ def manage_view(page: ft.Page) -> ft.Container:
     def open_delete_dialog(entry):
         def on_confirm(e):
             delete_password(entry["uuid"])
+            state.reload_from_json()
             page.pop_dialog()
-            page.update()
             refresh()
 
         page.show_dialog(ft.AlertDialog(
@@ -118,9 +135,10 @@ def manage_view(page: ft.Page) -> ft.Container:
         )
 
     search_field.on_change = lambda e: refresh()
+    state.passwords = load_passwords()
     refresh()
 
-    return ft.Container(
+    container = ft.Container(
         content=ft.Column(
             controls=[
                 ft.Text("パスワード管理", size=22, weight=ft.FontWeight.BOLD),
@@ -143,3 +161,5 @@ def manage_view(page: ft.Page) -> ft.Container:
         expand=True,
         padding=16,
     )
+
+    return container, refresh
