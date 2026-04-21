@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 import uuid
 import tempfile
 from pathlib import Path
@@ -11,30 +12,39 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 JSON_PATH = DATA_DIR / "passwords.json"
 
-""" # このファイルのディレクトリパスを取得
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-# このディレクトリの親ディレクトリを取得
-BASE_DIR = os.path.dirname(CURRENT_DIR)
-# passwords.jsonのパスを作成
-JSON_PATH = os.path.join(BASE_DIR, "passwords.json")
- """
+def find_latest_backup():
+    """存在する中で一番新しいバックアップパスを返す"""
+    backup = JSON_PATH.with_suffix(".json.bak1")
+    return backup if backup.exists() else None
 
 # JSONファイル作成
 def create_json():
-    """passwords.jsonがなければ作成"""
-    if not JSON_PATH.exists():
-        print("passwords.jsonがないので新規作成")
-        with JSON_PATH.open("w", encoding="utf-8") as f:
-            json.dump([], f, indent=4, ensure_ascii=False)
-    else:
-        print("passwords.jsonは既に存在しています")
+    """
+    passwords.jsonが存在しない場合の初期化処理
+    - bak1があればそれをコピーして復元
+    - なければ空のJSONを作成
+    """
+    if JSON_PATH.exists():
+        return
+
+    print("password.jsonがないため初期化処理を実行")
+
+    bak1 = JSON_PATH.with_suffix(".json.bak1")
+    if bak1.exists():
+        print(f"bak1から復元します")
+        shutil.copyfile(bak1, JSON_PATH)
+        return
+
+    # バックアップもない場合は空で作成
+    print("バックアップが見つからないため空のJSONを作成")
+    with JSON_PATH.open("w", encoding="utf-8") as f:
+        json.dump([], f, indent=4, ensure_ascii=False)
 
 # JSONファイルの読み込み
 def load_passwords():
     # 初回起動時
     if not JSON_PATH.exists():
         create_json()
-        return []
 
     """passwords.jsonを読み込みpythonオブジェクトとして返す"""
     try:
@@ -42,27 +52,31 @@ def load_passwords():
             return json.load(f)
     # JSONファイルが壊れていたらバックアップファイルを作って空のJSONを作成
     except json.JSONDecodeError:
-        backup_path = JSON_PATH.with_suffix(".json.bak1")
-        if backup_path.exists():
-            os.replace(backup_path, JSON_PATH)
-            print(f"JSONファイルが壊れているため {backup_path} にバックアップし初期化します")
+        print("JSONが壊れているためbak1から復元を試みます")
+
+        bak1 = JSON_PATH.with_suffix(".json.bak1")
+        if bak1.exists():
+            shutil.copyfile(bak1, JSON_PATH)
             return load_passwords()
 
-        #  バックアップがない場合は
+        #  bak1もない場合は空で初期化
         save_passwords([])
         return []
 
 # 保存前にバックアップを最大3つ取る
-def rorate_backups(max_backups=2):
-    for i in range(max_backups, 0, -1):
+def rorate_backups(max_backups=3):
+    for i in range(max_backups - 1, 0, -1):
         src = JSON_PATH.with_suffix(f".json.bak{i}")
         dst = JSON_PATH.with_suffix(f".json.bak{i + 1}")
         if src.exists():
-            os.replace(src, dst)
+            shutil.copyfile(src, dst)
 
+    # 現在のjsonをbak1としてコピー
     if JSON_PATH.exists():
-        first_backup = JSON_PATH.with_suffix(".json.bak1")
-        os.replace(JSON_PATH, first_backup)
+        shutil.copyfile(
+            JSON_PATH,
+            JSON_PATH.with_suffix(".json.bak1")
+        )
 
 # JSONファイルへの書き込み
 # まず一時ファイル（xxx.tmp）に書き込み

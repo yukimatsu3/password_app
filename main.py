@@ -1,6 +1,5 @@
-def main():
-    print("Hello from password-app!")
-
+import flet as ft
+from main_view import main
 
 if __name__ == "__main__":
-    main()
+    ft.run(main)

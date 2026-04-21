@@ -8,7 +8,8 @@ authors = [
     { name = "Flet developer", email = "you@example.com" }
 ]
 dependencies = [
-    "flet>=0.82.2"
+    "flet>=0.82.2",
+    "pyinstaller>=6.19.0",
 ]
 
 [dependency-groups]
@@ -26,7 +27,7 @@ company = "Flet"
 copyright = "Copyright (C) 2023-2026 by Flet"
 
 [tool.flet.app]
-path = "src"
+path = "."
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["."]

@@ -1,6 +1,5 @@
 import flet as ft
 from state import AppState
-# from services.password import generate_password
 from views.generate_view import generate_view
 from views.manage_view import manage_view
 
@@ -52,5 +51,3 @@ def main(page: ft.Page):
     )
 
     page.add(tabs)
-
-ft.run(main)
