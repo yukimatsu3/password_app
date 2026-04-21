@@ -27,16 +27,16 @@ def create_json():
     if JSON_PATH.exists():
         return
 
-    print("password.jsonがないため初期化処理を実行")
+    # print("password.jsonがないため初期化処理を実行")
 
     bak1 = JSON_PATH.with_suffix(".json.bak1")
     if bak1.exists():
-        print(f"bak1から復元します")
+        # print(f"bak1から復元します")
         shutil.copyfile(bak1, JSON_PATH)
         return
 
     # バックアップもない場合は空で作成
-    print("バックアップが見つからないため空のJSONを作成")
+    # print("バックアップが見つからないため空のJSONを作成")
     with JSON_PATH.open("w", encoding="utf-8") as f:
         json.dump([], f, indent=4, ensure_ascii=False)
 
@@ -52,7 +52,7 @@ def load_passwords():
             return json.load(f)
     # JSONファイルが壊れていたらバックアップファイルを作って空のJSONを作成
     except json.JSONDecodeError:
-        print("JSONが壊れているためbak1から復元を試みます")
+        # print("JSONが壊れているためbak1から復元を試みます")
 
         bak1 = JSON_PATH.with_suffix(".json.bak1")
         if bak1.exists():
