@@ -3,6 +3,7 @@ import json
 import shutil
 import uuid
 import tempfile
+import logging
 from pathlib import Path
 
 APP_NAME = "PasswordManager"
@@ -27,16 +28,16 @@ def create_json():
     if JSON_PATH.exists():
         return
 
-    # print("password.jsonがないため初期化処理を実行")
+    logging.info("password.jsonがないため初期化処理を実行")
 
     bak1 = JSON_PATH.with_suffix(".json.bak1")
     if bak1.exists():
-        # print(f"bak1から復元します")
+        logging.info(f"bak1から復元します")
         shutil.copyfile(bak1, JSON_PATH)
         return
 
     # バックアップもない場合は空で作成
-    # print("バックアップが見つからないため空のJSONを作成")
+    logging.warning("バックアップが見つからないため空のJSONを作成")
     with JSON_PATH.open("w", encoding="utf-8") as f:
         json.dump([], f, indent=4, ensure_ascii=False)
 
@@ -52,7 +53,7 @@ def load_passwords():
             return json.load(f)
     # JSONファイルが壊れていたらバックアップファイルを作って空のJSONを作成
     except json.JSONDecodeError:
-        # print("JSONが壊れているためbak1から復元を試みます")
+        logging.warning("JSONが壊れているためbak1から復元を試みます")
 
         bak1 = JSON_PATH.with_suffix(".json.bak1")
         if bak1.exists():
@@ -62,9 +63,13 @@ def load_passwords():
         #  bak1もない場合は空で初期化
         save_passwords([])
         return []
+    
+    except Exception:
+        logging.exception("password.json 読み込み中に想定外のエラーが発生しました")
+        return []
 
 # 保存前にバックアップを最大3つ取る
-def rorate_backups(max_backups=3):
+def rotate_backups(max_backups=3):
     for i in range(max_backups - 1, 0, -1):
         src = JSON_PATH.with_suffix(f".json.bak{i}")
         dst = JSON_PATH.with_suffix(f".json.bak{i + 1}")
@@ -84,14 +89,20 @@ def rorate_backups(max_backups=3):
 # 書き込み途中のファイル破損を防ぐ
 def save_passwords(data):
     # 保存前にバックアップ
-    rorate_backups()
+    rotate_backups()
 
     """dataをpasswords.jsonに書き込む"""
-    dir_path = JSON_PATH.parent
-    with tempfile.NamedTemporaryFile("w", dir=dir_path, delete=False, suffix=".tmp", encoding="utf-8") as tmp:
-        json.dump(data, tmp, indent=4, ensure_ascii=False)
-        tmp_path = tmp.name
-    os.replace(tmp_path, JSON_PATH)
+    try:
+        dir_path = JSON_PATH.parent
+        with tempfile.NamedTemporaryFile("w", dir=dir_path, delete=False, suffix=".tmp", encoding="utf-8") as tmp:
+            json.dump(data, tmp, indent=4, ensure_ascii=False)
+            tmp_path = tmp.name
+
+        os.replace(tmp_path, JSON_PATH)
+        logging.info("password.jsonを保存しました")
+    except Exception:
+        logging.exception("password.json 保存中にエラーが発生しました")
+        raise
 
 # idの生成
 def generate_uuid():

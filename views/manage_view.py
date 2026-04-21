@@ -1,4 +1,5 @@
 import flet as ft
+import logging
 from typing import Callable, Tuple
 from state import AppState
 from services.database import (
@@ -61,10 +62,12 @@ def manage_view(page: ft.Page, state: AppState) -> Tuple[ft.Container, Callable[
             # パスワードが存在すれば編集モードでアップデート
             if entry:
                 update_password(entry["uuid"], name_field.value, id_field.value, pass_field.value)
+                logging.info(f"管理画面: パスワードを更新しました uuid={entry["uuid"]}")
             # パスワードが存在しなければ新規追加モードでアップデート
             else:
                 new_entry = add_password(name_field.value, id_field.value, pass_field.value)
                 state.passwords.append(new_entry)
+                logging.info(f"管理画面: パスワードを新規追加しました uuid={new_entry["uuid"]}")
             if entry:
                 state.reload_from_json()
 
@@ -90,6 +93,7 @@ def manage_view(page: ft.Page, state: AppState) -> Tuple[ft.Container, Callable[
     def open_delete_dialog(entry):
         def on_confirm(e):
             delete_password(entry["uuid"])
+            logging.warning(f"管理画面: パスワードを削除しました uuid={entry["uuid"]}")
             state.reload_from_json()
             page.pop_dialog()
             refresh()

@@ -1,4 +1,5 @@
 import flet as ft
+import logging
 from state import AppState
 from services.password import generate_password
 from services.database import add_password, create_json
@@ -12,6 +13,8 @@ def generate_view(
 
     # 生成ボタンを押したときの処理
     def on_generate_click(e):
+        logging.info("生成ボタンが押されました")
+
         try:
             password_field.value = generate_password(
                 int(slider.value),
@@ -20,28 +23,42 @@ def generate_view(
                 digit_checkbox.value,
                 symbols_checkbox.value
             )
+            logging.info("パスワード生成に成功しました")
+
         except ValueError as ex:
+            logging.warning(f"パスワード生成失敗: {ex}")
             page.show_dialog(ft.SnackBar(ft.Text(str(ex))))
+
+        except Exception:
+            logging.exception("パスワード生成処理で想定外のエラーが発生しました")
+            page.show_dialog(ft.SnackBar(ft.Text("内部エラーが発生しました")))
+
         page.update()
 
     # コピーボタンを押したときの処理
     async def copy_button_click(e):
-
         if not password_field.value:
+            logging.warning("コピーが実行されましたがパスワードが空でした")
             page.show_dialog(ft.SnackBar("パスワードがまだ生成されていません！"))
         else:
             try:
                 cb = ft.Clipboard()
                 page.services.append(cb)
                 await cb.set(password_field.value)
+                logging.info("パスワードをクリップボードにコピーしました")
                 page.show_dialog(ft.SnackBar("パスワードがコピーされました！"))
             except:
+                logging.info("クリップボードへのコピーに失敗しました")
                 page.show_dialog(ft.SnackBar("クリップボードへのコピーに失敗しました"))
+
         page.update()
 
     # 保存ボタンを押したときの処理
     def on_save_click(e):
+        logging.info("保存ボタンが押されました")
+
         if not password_field.value:
+            logging.warning("パスワード保存中にエラーが発生しました")
             page.show_dialog(ft.SnackBar("パスワードがまだ生成されていません！"))
             return
 
