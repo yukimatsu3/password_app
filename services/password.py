@@ -1,9 +1,36 @@
 import secrets
 import string
+import re
 
 # 定数
 # 記号の定数
 COMMON_SYMBOLS = "@#$%^*()_+=&-"
+
+# 許可する文字だけを定義
+ALLOWED_CHARS = set(
+    string.ascii_letters +
+    string.ascii_lowercase +
+    string.digits +
+    COMMON_SYMBOLS
+)
+
+# 正規表現
+PASSWORD_PATTERN = re.compile(
+    rf"^[{re.escape("".join(ALLOWED_CHARS))}]+$"
+)
+
+def filter_invalid_chars(value: str) -> str:
+    """
+    ひらがな・漢字・絵文字・全角を削除する
+    """
+    return "".join(c for c in value if c in ALLOWED_CHARS)
+
+def validate_password(value: str):
+    """
+    保存・登録・確定時用バリデーション
+    """
+    if not PASSWORD_PATTERN.fullmatch(value):
+        raise ValueError("パスワードに使用できない文字が含まれています")
 
 # 関数
 # パスワード生成ロジック

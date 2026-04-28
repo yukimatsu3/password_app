@@ -9,6 +9,7 @@ from services.database import (
     delete_password,
     create_json
 )
+from services.password import filter_invalid_chars, validate_password 
 
 def manage_view(page: ft.Page, state: AppState) -> Tuple[ft.Container, Callable[[], None]]:
     """戻り値：
@@ -50,15 +51,31 @@ def manage_view(page: ft.Page, state: AppState) -> Tuple[ft.Container, Callable[
         id_field = ft.TextField(label="ID", value=entry["id"] if entry else "")
         pass_field = ft.TextField(
             label="パスワード",
+            hint_text="英字・数字・記号のみ使用可能",
             value=entry["pass"] if entry else "",
             password=True,
             can_reveal_password=True,
+            on_change=lambda e: (
+                setattr(
+                    e.control,
+                    "value",
+                    filter_invalid_chars(e.control.value)
+                ),
+                page.update()
+            ),
         )
 
         def on_save(e):
             # strip():文字列の前後から不要な文字（デフォルトでは空白文字）を削除
             if not name_field.value.strip():
                 return
+
+            try:
+                validate_password(pass_field.value)
+            except ValueError as err:
+                page.show_dialog(ft.SnackBar(ft.Text(str(err))))
+                return
+
             # パスワードが存在すれば編集モードでアップデート
             if entry:
                 update_password(entry["uuid"], name_field.value, id_field.value, pass_field.value)
